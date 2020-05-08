@@ -6,12 +6,12 @@ from os import path
 img_dir = path.join(path.dirname(__file__), 'img')
 
 
-WIDTH = 600
-HEIGHT = 700
+WIDTH = 626
+HEIGHT = 626
 PLAYER_COLOUR = (255, 0, 0)
 ENEMY_COLOUR = (0,255,0)
 BACKGROUND_COLOUR = (0,0,0)
-FONT_COLOUR = (255,255,0)
+FONT_COLOUR = (0,0,0)
 FPS = 27
 
 pygame.init()
@@ -26,6 +26,7 @@ player_pos = [WIDTH/2, HEIGHT-2*player_size] # x coordinate for starting rectang
 player_x = WIDTH/2
 player_y = HEIGHT - (2 * player_size)
 player_pos = [WIDTH/2, HEIGHT - (2 * player_size)] # x coordinate for starting rectangle
+player_lives = 3
 
 # image setup
 
@@ -49,11 +50,16 @@ font = pygame.font.SysFont("monospace", 35)
 
 #Load game graphics
 
-background = pygame.image.load(path.join(img_dir, "bg_02_v.png")).convert()
+background = pygame.image.load(path.join(img_dir, "winter-landscape.jpg")).convert()
 background_rect = background.get_rect()
 
-player_img = pygame.image.load(path.join(img_dir, "penguin_copy.png"))
+player_img = pygame.image.load(path.join(img_dir, "square-penguin-copy.png"))
 player_rect = player_img.get_rect()
+
+enemy_img = pygame.image.load(path.join(img_dir, "zombie-copy.png"))
+enemy_rect = enemy_img.get_rect()
+
+
 
 
 def draw_window():
@@ -88,11 +94,12 @@ def set_level(score, enemy_speed):
 		enemy_speed = 2
 
 	elif score < 40:
-		enemy_speed = 3
+		enemy_speed = 4
 	else: 
-		enemy_speed = 2
+		enemy_speed = 6
 	
 	return enemy_speed
+
 
 def drop_enemies(enemy_list):
 
@@ -106,7 +113,7 @@ def drop_enemies(enemy_list):
 def draw_enemies(enemy_list):
 
 	for enemy_pos in enemy_list:
-		pygame.draw.rect(screen, ENEMY_COLOUR, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+		screen.blit(enemy_img, (enemy_pos[0], enemy_pos[1]))
 
 
 def update_enemy_pos(enemy_list, score):
@@ -123,9 +130,9 @@ def collision_check(enemy_list, player_pos):
 
 	for enemy_pos in enemy_list:
 		if detect_collision(player_pos, enemy_pos):
-			return True
+				return True
 
-	return False
+		return False
 
 def detect_collision(player_pos, enemy_pos):
 
@@ -201,14 +208,24 @@ while not gameover:
 	
 	score = update_enemy_pos(enemy_list, score) #score is integer ie. immutable value so must pass it to change
 	enemy_speed = set_level(score, enemy_speed)
+	#player_lives = checkLives(player_lives)
+
 	
 	text = "Score:" + str(score)
 	label = font.render(text, 1, FONT_COLOUR)
 	screen.blit(label, (WIDTH-200, HEIGHT-40))
+	
 
 	if collision_check(enemy_list, player_pos):
 		gameover = True
 		break
+
+
+	text_lives = "Lives:" + str(player_lives)
+	label_lives = font.render(text_lives, 1, FONT_COLOUR)
+	screen.blit(label_lives, (WIDTH-200, HEIGHT-80))
+	
+
 		
 
 	draw_enemies(enemy_list)
