@@ -7,22 +7,33 @@ img_dir = path.join(path.dirname(__file__), 'img')
 
 
 WIDTH = 600
-HEIGHT = 800
+HEIGHT = 700
 PLAYER_COLOUR = (255, 0, 0)
 ENEMY_COLOUR = (0,255,0)
 BACKGROUND_COLOUR = (0,0,0)
 FONT_COLOUR = (255,255,0)
-FPS = 40
+FPS = 27
 
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT)) #create a screen
-pygame.display.set_caption("Toilet Paper Frenzy")
+pygame.display.set_caption("Lamar's Game")
 clock = pygame.time.Clock()
 
-player_size = 50
-player_speed = 5
+player_size = 32
+player_speed = 10
 player_pos = [WIDTH/2, HEIGHT-2*player_size] # x coordinate for starting rectangle
+player_x = WIDTH/2
+player_y = HEIGHT - (2 * player_size)
+player_pos = [WIDTH/2, HEIGHT - (2 * player_size)] # x coordinate for starting rectangle
+
+# image setup
+
+left = False
+right = False
+up = False
+down = False
+walkCount = 0
 
 
 enemy_speed = 0
@@ -40,76 +51,29 @@ font = pygame.font.SysFont("monospace", 35)
 
 background = pygame.image.load(path.join(img_dir, "bg_02_v.png")).convert()
 background_rect = background.get_rect()
-player_img = pygame.image.load(path.join(img_dir, "penguin_16x16.jpg"))
+
+player_img = pygame.image.load(path.join(img_dir, "penguin_copy.png"))
 player_rect = player_img.get_rect()
-player_rect.center = WIDTH / 2, HEIGHT / 2
-
-class Penguin(pygame.sprite.Sprite):
-	def __init__(self):
-		pygame.sprite.Sprite.__init__(self)
-		self.image =  player_img
-		self.rect = self.image.get_rect()
-		self.rect.centerx = WIDTH / 2
-		self.rect.centery = HEIGHT - 10
-		self.speedx = 0
-		self.speedy = 0
-
-	def update(self):
-		
-		x = self.rect.centerx
-		y = self.rect.centery
-
-		keystate = pygame.key.get_pressed()
 
 
+def draw_window():
+	global walkCount
+	screen.fill(BACKGROUND_COLOUR)
+	screen.blit(background, background_rect)
 
-			# prevent player from going off boundary of screen + key functionality
-		if keystate[pygame.K_LEFT]:
-			if x - player_size < 0:
-				x = 0
-			else:
-				self.speedx = -player_speed					
-		if keystate[pygame.K_RIGHT]:
-			if x + player_size >= WIDTH:
-				x = WIDTH - player_size
-			else:
-				self.speedx = player_speed
-		if keystate[pygame.K_UP]:
-			if y - player_size < 0:
-				y = 0 
-			else:
-				self.speedy = -player_speed
-		if keystate[pygame.K_DOWN]:
-			if y + player_size >= HEIGHT:
-				y = HEIGHT - player_size
-			else:
-				self.speedy = player_speed
+	if walkCount + 1 >= 27:
+		walkCount = 0
 
-		self.rect.x += self.speedx
-		self.rect.y += self.speedx
-		
-		player_pos = [x, y]
+	if left or right or up or down:
+		screen.blit(player_img, (player_pos[0], player_pos[1]))
+		#pygame.draw.rect(screen, (255, 255, 255), (player_pos[0], player_pos[1], player_size, player_size))
 
-			# 	self.speedx = 0
-	# 	keystate = pygame.key.get_pressed()
-	# 	if keystate[pygame.K_LEFT]:
-	# 		self.speedx -= player_speed
-	# 	if keystate[pygame.K_RIGHT]:
-	# 		self.speedx += player_speed
-	# 	if keystate[pygame.K_UP]:
-	# 		self.speedy -= player_speed
-	# 	if keystate[pygame.K_DOWN]:
-	# 		self.speedy += player_speed
+		walkCount += 1
 
-	# 	self.rect.x += self.speedx
-	# 	#self.rect.y += self.speedy
+	else:
+		screen.blit(player_img, (player_pos[0], player_pos[1]))
 
-	# 	player_pos = [self.rect.x, self.rect.y]
-
-
-all_sprites = pygame.sprite.Group()
-penguin = Penguin()
-all_sprites.add(penguin)
+		#screen.blit(player_img, (player_x, player_y))
 
 
 def show_game_over_screen():
@@ -190,51 +154,51 @@ while not gameover:
 			sys.exit()
 
 
+	x = player_pos[0]
+	y = player_pos[1]
 
-		#Update
-		all_sprites.update()
+	keys = pygame.key.get_pressed()
 
-		#if event.type == pygame.KEYDOWN:
+	if keys[pygame.K_LEFT] and x > player_speed:
+		x -= player_speed
+		left = True
+		right = False
+		up = False
+		down = False
+	elif keys[pygame.K_RIGHT] and x < WIDTH - player_size - player_speed:
+		x += player_speed
+		right = True
+		left = False
+		up = False
+		down = False
+	elif keys[pygame.K_UP] and y < HEIGHT - player_size - player_speed:
+		y -= player_speed
+		up = True
+		down = False
+		left = False
+		right = False
+	elif keys[pygame.K_DOWN] and y >  player_speed:
+		y += player_speed
+		down = True
+		up = False
+		left = False
+		right = False
+	else:
+		right = False
+		left = False
+		down = False
+		up = False
+		walkCount = 0
 
-			#x = player_pos[0]
-			#y = player_pos[1]
-
-			# x = penguin.centerx
-			# y = penguin.centery
-
-
-			# # prevent player from going off boundary of screen + key functionality
-			# if event.key == pygame.K_LEFT:
-			# 	if x - player_size < 0:
-			# 		x = 0
-			# 	else:
-			# 		x -= player_speed					
-			# if event.key == pygame.K_RIGHT:
-			# 	if x + player_size >= WIDTH:
-			# 		x = WIDTH - player_size
-			# 	else:
-			# 		x += player_speed
-			# if event.key == pygame.K_UP:
-			# 	if y - player_size < 0:
-			# 		y = 0 
-			# 	else:
-			# 		y -= player_speed
-			# if event.key == pygame.K_DOWN:
-			# 	if y + player_size >= HEIGHT:
-			# 		y = HEIGHT - player_size
-			# 	else:
-			# 		y += player_speed
-			
-
-			#player_pos = [x, y]
+	player_pos = [x, y]
 
 
 	# this resets the screen background each time the loop runs, allowing a new rectangle to be drawn
-	screen.fill(BACKGROUND_COLOUR)
-	screen.blit(background, background_rect)
+	draw_window()
 
-	all_sprites.draw(screen)
+	#all_sprites.draw(screen)
 	drop_enemies(enemy_list)
+	
 	score = update_enemy_pos(enemy_list, score) #score is integer ie. immutable value so must pass it to change
 	enemy_speed = set_level(score, enemy_speed)
 	
@@ -249,75 +213,7 @@ while not gameover:
 
 	draw_enemies(enemy_list)
 
-	#screen.blit(player_img, player_rect)
-	#pygame.draw.rect(screen, PLAYER_COLOUR, player_rect, 1)
-	#pygame.draw.rect(screen, ENEMY_COLOUR, (player_rect.left, player_rect.top), 1)
-
 	#update screen every iteration so you can see the visualizations
-
 	clock.tick(FPS)
+	pygame.display.update()
 
-
-	pygame.display.flip()
-
-
-
-
-
-# class Penguin(pygame.sprite.Sprite):
-# 	def __init__(self):
-# 		pygame.sprite.Sprite.__init__(self)
-# 		self.image =  player_img
-# 		self.image.fill((0, 255, 0))
-# 		self.rect = self.image.get_rect()
-# 		self.rect.centerx = WIDTH / 2
-# 		self.rect.centery = HEIGHT - 10
-# 		self.speedx = 0
-
-# 	def update(self):
-# 		self.rect.x += self.speedx
-
-# all_sprites = pygame.sprite.Group()
-# penguin = Penguin()
-# all_sprites.add(penguin)
-
-# class Mob(pygame.sprite.Sprite):
-# 	def __init__(self):
-# 		pygame.sprite.Sprite.__init__(self)
-# 		self.image = pygame.Surface((30, 40))
-# 		self.image.fill((255,0,0))
-# 		self.rect = self.image.get_rect()
-# 		self.rect.x = random.randrange(WIDTH - self.rect.width)
-# 		self.rect.y = random.randrange(-100, -40)
-# 		self.speedy = random.randrange(1, 8)
-# 		self.speedx = random.randrange(-3, 3)
-
-# 	def update(self):
-# 		self.rect.x += self.speedx
-# 		self.rect.y += speedy
-# 		if self.rect.top > HEIGHT + 10 or self.rect.left < -25 or self.rect.right > WIDTH + 20:
-# 			self.rect.x = random.randrange(WIDTH - self.rect.width)
-# 			self.rect.y = random.randrange(-100, -40)
-# 			self.speedy = random.randrange(1, 8)
-
-
-		#if event.key == pygame.K_LEFT:
-		# 		if x - player_size < 0:
-		# 			x = 0
-		# 		else:
-		# 			x -= player_speed					
-		# 	if event.key == pygame.K_RIGHT:
-		# 		if x + player_size >= WIDTH:
-		# 			x = WIDTH - player_size
-		# 		else:
-		# 			x += player_speed
-		# 	if event.key == pygame.K_UP:
-		# 		if y - player_size < 0:
-		# 			y = 0 
-		# 		else:
-		# 			y -= player_speed
-		# 	if event.key == pygame.K_DOWN:
-		# 		if y + player_size >= HEIGHT:
-		# 			y = HEIGHT - player_size
-		# 		else:
-		# 			y += player_speed
