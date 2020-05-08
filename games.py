@@ -132,7 +132,7 @@ def collision_check(enemy_list, player_pos):
 		if detect_collision(player_pos, enemy_pos):
 				return True
 
-		return False
+	return False
 
 def detect_collision(player_pos, enemy_pos):
 
